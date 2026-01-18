@@ -1,0 +1,17 @@
+# Backup files
+*.bak
+*_backup.lua
+*_backup_*.lua
+prediction_backup.lua
+prediction_backup_old.lua
+prediction_backup_stage4.lua
+prediction_new.lua
+
+# IDE files
+.vscode/
+.idea/
+*.sublime-*
+
+# OS files
+.DS_Store
+Thumbs.db
