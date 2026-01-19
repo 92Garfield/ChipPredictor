@@ -41,6 +41,7 @@ The mod hooks into the game's card selection system and calculates the exact sco
 - Position-dependent jokers (Blueprint, Brainstorm)
 - Card repetition jokers (Sock and Buskin, Hanging Chad, Dusk)
 - X-mult jokers (Baron, Ancient Joker, Triboulet, etc.)
+- Dynamic jokers (Swashbuckler, Fortune Teller, etc.)
 
 ## Known Limitations
 

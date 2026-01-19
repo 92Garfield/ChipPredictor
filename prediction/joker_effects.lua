@@ -241,6 +241,37 @@ function joker_effects.scoring_hand_single_joker(joker, cards, scoring_hand, han
         end
     end
     
+    -- Swashbuckler: +mult equal to sell value of all other jokers
+    if joker_name == 'Swashbuckler' then
+        local sell_total = 0
+        if G.jokers and G.jokers.cards then
+            for i = 1, #G.jokers.cards do
+                local other_joker = G.jokers.cards[i]
+                if other_joker ~= joker and other_joker.sell_cost then
+                    sell_total = sell_total + other_joker.sell_cost
+                end
+            end
+        end
+        
+        if sell_total > 0 then
+            joker_mult = joker_mult + sell_total
+            print(string.format("  %s: +%d mult (sell value of other jokers)", joker_name, sell_total))
+        end
+    end
+    
+    -- Bull: +chips based on current money (extra × dollars)
+    if joker_name == 'Bull' then
+        if G.GAME then
+            local current_dollars = (G.GAME.dollars or 0) + (G.GAME.dollar_buffer or 0)
+            if current_dollars > 0 and joker.ability.extra then
+                local bull_chips = joker.ability.extra * current_dollars
+                joker_chips = joker_chips + bull_chips
+                print(string.format("  %s: +%d chips (%d×$%d = %d)", 
+                    joker_name, bull_chips, joker.ability.extra, current_dollars, bull_chips))
+            end
+        end
+    end
+    
     -- Record contribution if meaningful
     if joker_chips > 0 or joker_mult > 0 or joker_x_mult > 1 then
         table.insert(contributions, {
@@ -778,6 +809,32 @@ function joker_effects.single_card(card, cards, scoring_hand, hand_name, poker_h
                     if card_id == 13 then
                         joker_x_mult = joker_x_mult * (joker.ability.extra or 1.5)
                         print(string.format("  %s: x%.1f mult (King in hand)", joker_name, joker.ability.extra or 1.5))
+                    end
+                end
+                
+                -- Raised Fist: doubles mult of lowest rank card in hand
+                if joker_name == 'Raised Fist' then
+                    -- Find the lowest rank card in hand (excluding stone cards)
+                    local lowest_id = 15
+                    local lowest_card = nil
+                    if G.hand and G.hand.cards then
+                        for i = 1, #G.hand.cards do
+                            local hand_card = G.hand.cards[i]
+                            if hand_card.ability and hand_card.ability.effect ~= 'Stone Card' then
+                                local hand_card_id = hand_card.base and hand_card.base.id or 0
+                                if hand_card_id < lowest_id then
+                                    lowest_id = hand_card_id
+                                    lowest_card = hand_card
+                                end
+                            end
+                        end
+                    end
+                    
+                    -- If this card is the lowest rank card, double its mult
+                    if lowest_card == card and not card.debuff then
+                        local card_nominal = card.base and card.base.nominal or 0
+                        joker_h_mult = joker_h_mult + (2 * card_nominal)
+                        print(string.format("  %s: +%d h_mult (2x lowest rank card mult)", joker_name, 2 * card_nominal))
                     end
                 end
             end
